@@ -51,6 +51,9 @@ FROM
   u.fio
  ,a.address
  ,REGEXP_SUBSTR (:str, '(\d{6})($)') postal_code
+/* ,SUBSTR(a.address
+             ,INSTR(a.address,',',1,4) + 1
+             ,LENGTH(a.address) + 1 - (INSTR(a.address,',',1,4) + 1)) postal_code*/
  ,c.id user_on_address_id
  ,c.begin_date
  ,c.end_date

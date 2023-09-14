@@ -14,7 +14,8 @@
 --
 SET LINESIZE 1000
 SET FEED OFF
-SET COLSEP '|'
+SET MARKUP HTML PREFORMAT ON
+SET COLSEP ' | '
 --
 SPOOL query.log
 --
@@ -56,11 +57,14 @@ FROM
  ,c.end_date
  --
  ,CASE
+   -- есть запись в таблице прописок с неустановленной датой выписки
    WHEN (c.id IS NOT NULL AND c.end_date AND NULL) THEN 1 -- действующий адрес
+   -- нет записи в таблице прописок
    WHEN (c.id IS NULL) THEN -1 -- нет действующего адреса
    ELSE 0 -- недействующий адрес
   END is_mode
  --
+ -- сортировка: сначала с максимальной датой прописки, с макимальным идентификатором
  ,ROW_NUMBER() OVER (PARTITION BY u.id ORDER BY c.begin_date DESC, c.id DESC) rn
  FROM
   x#user u
@@ -70,7 +74,8 @@ FROM
   ON a.id = c.c_address
 ) x1
 WHERE
- (:p_mode = 0 AND x1.rn = 1) -- все граждане
+-- все граждане (одна строка с последними актуальными данными)
+ (:p_mode = 0 AND x1.rn = 1)
 -- p_mode = 1 действующий адрес
 -- p_mode = -1 нет действующего адрес
 OR (:p_mode <> 0 AND x1.is_mode = :p_mode AND x1.rn = 1)

@@ -13,16 +13,10 @@
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
 SET LINESIZE 1000
+SET PAGESIZE 0 EMBEDDED ON
 SET COLSEP ' | '
 --
-SPOOL query3.log
---
--- Задание 3
--- Создать sql-запрос, который преобразует строку, состоящую из пар
--- «ключ:значение», разделенных символом «#», в таблицу с двумя колонками
--- &quot;Ключ&quot; и &quot;Значение&quot;, отсортировать по полю &quot;Значение&quot; по убыванию.
--- Пример строки:
--- Аналитик:1#Разработчик:12#Тестировщик:10#Менеджер:3
+SPOOL query.log
 --
 WITH row_date AS  (
   SELECT

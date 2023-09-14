@@ -12,14 +12,10 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET VERIFY OFF
---
-ALTER SESSION SET NLS_DATE_FORMAT='DD.MM.YYYY';
-ALTER SESSION SET NLS_NUMERIC_CHARACTERS=',.';
---
-SET SERVEROUTPUT ON SIZE 1000000
 SET LINESIZE 1000
 SET FEED OFF
+SET MARKUP HTML PREFORMAT ON
+SET COLSEP ' | '
 --
 SPOOL query.log
 --
@@ -30,7 +26,20 @@ BEGIN
  SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
 END;
 /
-
+--
+-- Создать sql-запрос, выводящий для каждого гражданина ФИО, его действующий
+-- адрес, почтовый индекс тремя отдельными колонками. Адрес является
+-- действующим, если дата выписки не установлена, а дата прописки максимальная.
+-- При наличии нескольких действующих адресов брать наиболее актуальный (с
+-- максимальным id прописки).
+-- Запрос сделать параметризуемым – в зависимости от значения p_mode:
+-- p_mode = 1 организовать поиск граждан с действующим местом жительства
+--            на текущий момент
+-- p_mode = 0 вывести всех граждан (вне зависимости от того указан ли у них
+--            действующий адрес)
+-- p_mode = -1 организовать поиск граждан без определенного места
+--            жительства
+--
 SELECT
  x1.fio
 ,x1.address
@@ -48,11 +57,14 @@ FROM
  ,c.end_date
  --
  ,CASE
+   -- есть запись в таблице прописок с неустановленной датой выписки
    WHEN (c.id IS NOT NULL AND c.end_date AND NULL) THEN 1 -- действующий адрес
+   -- нет записи в таблице прописок
    WHEN (c.id IS NULL) THEN -1 -- нет действующего адреса
    ELSE 0 -- недействующий адрес
   END is_mode
  --
+ -- сортировка: сначала с максимальной датой прописки, с макимальным идентификатором
  ,ROW_NUMBER() OVER (PARTITION BY u.id ORDER BY c.begin_date DESC, c.id DESC) rn
  FROM
   x#user u
@@ -62,7 +74,8 @@ FROM
   ON a.id = c.c_address
 ) x1
 WHERE
- (:p_mode = 0 AND x1.rn = 1) -- все граждане
+-- все граждане (одна строка с последними актуальными данными)
+ (:p_mode = 0 AND x1.rn = 1)
 -- p_mode = 1 действующий адрес
 -- p_mode = -1 нет действующего адрес
 OR (:p_mode <> 0 AND x1.is_mode = :p_mode AND x1.rn = 1)

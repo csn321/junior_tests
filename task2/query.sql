@@ -12,20 +12,21 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET VERIFY OFF
---
-ALTER SESSION SET NLS_DATE_FORMAT='DD.MM.YYYY';
-ALTER SESSION SET NLS_NUMERIC_CHARACTERS=',.';
---
-SET SERVEROUTPUT ON SIZE 1000000
 SET LINESIZE 1000
 SET FEED OFF
 --
 SPOOL query2.log
 --
-SELECT (CHR(ASCII('a') + level - 1)) FROM DUAL
+-- Задание 2
+-- Создать sql-запрос, выводящий латинский алфавит в виде строчных букв, каждая
+-- буква - отдельная строка.
+--
+SELECT
+ (CHR(ASCII('a') + LEVEL - 1)) letters
+FROM
+ dual
 CONNECT BY
-level <= 26
+ LEVEL <= 26
 ;
 
 SPOOL OFF

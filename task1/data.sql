@@ -93,14 +93,14 @@ DECLARE
     p.place
    ,s.street
    ,h.house
-   ,TO_CHAR(p.p_index, '09') || TO_CHAR(s.p_index, '09') || TO_CHAR(h.p_index, '09') p_index
+   ,TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) || TRIM(TO_CHAR(h.postal_code, '09')) postal_code
    FROM (
     SELECT
      SUBSTR(t_place
            ,DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_place, ',', 1, level), 0, LENGTH(t_place) + 1, INSTR(t_place, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)) place
-    ,60+level p_index
+    ,60+level postal_code
     FROM
      dual
     CONNECT BY
@@ -111,7 +111,7 @@ DECLARE
            ,DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_street, ',', 1, level), 0, LENGTH(t_street) + 1, INSTR(t_street, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)) street
-    ,20+level p_index
+    ,20+level postal_code
     FROM
      dual
     CONNECT BY
@@ -122,7 +122,7 @@ DECLARE
            ,DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_house, ',', 1, level), 0, LENGTH(t_house) + 1, INSTR(t_house, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)) house
-    ,10+level p_index
+    ,10+level postal_code
     FROM
      dual
     CONNECT BY
@@ -135,7 +135,7 @@ DECLARE
         ,c_address
         ) VALUES (
          x#address_sq_id.nextval
-        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.p_index
+        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.postal_code
         );
      END LOOP;
   END LOOP;

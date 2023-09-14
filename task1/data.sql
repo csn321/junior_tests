@@ -168,6 +168,7 @@ DECLARE
    LEFT OUTER JOIN x#address a1 ON (a1.id = u1.id)
    LEFT OUTER JOIN x#address a2 ON (a2.id = u1.id + u1.max_id)
   ) LOOP
+    -- предположим - граждане с id 50, 75 и 99 - бомжи
     IF (c.a1_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
        INSERT INTO x#user_on_adress (
         id

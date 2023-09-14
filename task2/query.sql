@@ -14,7 +14,6 @@
 --
 SET LINESIZE 1000
 SET FEED OFF
-SET COLSEP '|'
 --
 SPOOL query2.log
 --

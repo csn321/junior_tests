@@ -13,7 +13,6 @@
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
 SET LINESIZE 1000
-SET FEED OFF
 SET MARKUP HTML PREFORMAT ON
 SET COLSEP ' | '
 --
@@ -51,9 +50,10 @@ FROM
  SELECT
   u.fio
  ,a.address
- ,SUBSTR(a.address
+ ,REGEXP_SUBSTR (:str, '(\d{6})($)') postal_code
+/* ,SUBSTR(a.address
              ,INSTR(a.address,',',1,4) + 1
-             ,LENGTH(a.address) + 1 - (INSTR(a.address,',',1,4) + 1)) postal_code
+             ,LENGTH(a.address) + 1 - (INSTR(a.address,',',1,4) + 1)) postal_code*/
  ,c.id user_on_address_id
  ,c.begin_date
  ,c.end_date

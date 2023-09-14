@@ -13,7 +13,7 @@
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
 SET LINESIZE 1000
-SET FEED OFF
+SET COLSEP ' | '
 --
 SPOOL query2.log
 --

@@ -12,16 +12,17 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET VERIFY OFF
---
-ALTER SESSION SET NLS_DATE_FORMAT='DD.MM.YYYY';
-ALTER SESSION SET NLS_NUMERIC_CHARACTERS=',.';
---
-SET SERVEROUTPUT ON SIZE 1000000
 SET LINESIZE 1000
 SET FEED OFF
 --
 SPOOL query3.log
+--
+-- Задание 3
+-- Создать sql-запрос, который преобразует строку, состоящую из пар
+-- «ключ:значение», разделенных символом «#», в таблицу с двумя колонками
+-- &quot;Ключ&quot; и &quot;Значение&quot;, отсортировать по полю &quot;Значение&quot; по убыванию.
+-- Пример строки:
+-- Аналитик:1#Разработчик:12#Тестировщик:10#Менеджер:3
 --
 WITH row_date AS  (
   SELECT
@@ -30,12 +31,20 @@ WITH row_date AS  (
    DUAL
 )
 SELECT
- REGEXP_SUBSTR(REGEXP_SUBSTR (str,'([^#]+)', 1, level), '[^:]+', 1, 1) key
-,REGEXP_SUBSTR(REGEXP_SUBSTR (str,'([^#]+)', 1, level), '[^:]+', 1, 2) value
+ x1.key
+,x1.value
 FROM
- row_date
-CONNECT BY
- level <= REGEXP_COUNT(str, '#')+1
+(
+ SELECT
+  REGEXP_SUBSTR(REGEXP_SUBSTR (str,'([^#]+)', 1, LEVEL), '[^:]+', 1, 1) key
+ ,REGEXP_SUBSTR(REGEXP_SUBSTR (str,'([^#]+)', 1, LEVEL), '[^:]+', 1, 2) value
+ FROM
+  row_date
+ CONNECT BY
+  LEVEL <= REGEXP_COUNT(str, '#')+1
+) x1
+ORDER BY
+ x1.key DESC
 ;
 
 SPOOL OFF

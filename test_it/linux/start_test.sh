@@ -31,26 +31,26 @@ if [ "$ORA_CLIENT_" == "N" ]; then
 fi
 
 echo -n "Enter test number (1, 2, 3) and press enter: "
-read test_number
+read TEST_NUMBER_
 
-if [ -z "$test_number" ] || ! [[ $test_number =~ "[1-3]{1}" ]]; then
+if [ -z "$TEST_NUMBER_" ] || ! [[ $TEST_NUMBER_ =~ ^[1-3]{1}$ ]]; then
    echo "Error. Incorrect test number!"
    exit 1
 fi
 
-echo "Execute test" $test_number
+echo "Execute test" $TEST_NUMBER_
 
 echo -n "Enter the connect string (username@tnsname) and press enter: "
-read orauid
+read ORAUID_
 
-if [ -z "$orauid" ]; then
+if [ -z "$ORAUID_" ]; then
    echo "Error. Incorrect connect string (empty)!"
    exit 1
 fi
 
-if [[ "$orauid" =~ "^[^@]+@[^@]+$" ]]; then
+if [[ "$ORAUID_" =~ "^[^@]+@[^@]+$" ]]; then
    echo "Error. Incorrect connect string (format)!"
    exit 1
 fi
 
-sqlplus $orauid @'../../task'$test_number'/query.sql'
+sqlplus $orauid @'../../task'$TEST_NUMBER_'/query.sql'

@@ -52,7 +52,7 @@ DECLARE
       id
      ,c_fio
      ) VALUES (
-      x#user_sq.nextval
+      x#user_sq_id.nextval
      ,c.last_name || ',' || c.first_name || ',' || c.second_name
      );
   END LOOP;
@@ -66,6 +66,7 @@ DECLARE
   t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
   t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
   t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
+  t_flat INTEGER;
  BEGIN
   FOR c IN (
    SELECT
@@ -107,19 +108,83 @@ DECLARE
     CONNECT BY
      LEVEL < 5) h
   ) LOOP
-     INSERT INTO x#address (
-      id
-     ,c_address
-     ) VALUES (
-      x#address_sq.nextval
-     ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || c.index
-     );
+     FOR t_flat IN 1..30
+     LOOP
+        INSERT INTO x#address (
+         id
+        ,c_address
+        ) VALUES (
+         x#address_sq_id.nextval
+        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.index
+        );
+     END LOOP;
   END LOOP;
  END set_address;
+ --
+ --
+ --
+ PROCEDURE set_user_on_address
+ IS
+ DECLARE
+ BEGIN
+  FOR c IN (
+   SELECT
+    u1.id
+   ,u1.c_fio
+   ,u1.max_id
+   ,a1.id a1_id
+   ,DECODE(a1.id, NULL, NULL, TO_DATE('01.01.2010', 'DD.MM.YYYY') + a1.id) begin1
+   ,DECODE(a2.id, NULL, NULL, TO_DATE('01.01.2010', 'DD.MM.YYYY') + a2.id) end1
+   ,a2.id a2_id
+   ,DECODE(a2.id, NULL, NULL, TO_DATE('01.01.2010', 'DD.MM.YYYY') + a2.id + 5) begin2
+   FROM (
+    SELECT
+     u.id
+    ,u.c_fio
+    ,MAX(u.id) OVER() max_id
+    FROM
+     x#user u
+   ) u1
+   LEFT OUTER JOIN x#address a1 ON (a1.id = u1.id)
+   LEFT OUTER JOIN x#address a2 ON (a2.id = u1.id + u1.max_id)
+  ) LOOP
+    IF (c.a1_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
+       INSERT INTO x#user_on_adress (
+        id
+       ,c_user
+       ,c_address
+       ,c_begin
+       ,c_end
+       ) VALUES (
+        x#user_on_adress_sq_id.nextval
+       ,c.id
+       ,c.a1_id
+       ,c.begin1
+       ,c.end1
+       );
+    END IF;
+    --
+    IF (c.a2_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
+       INSERT INTO x#user_on_adress (
+        id
+       ,c_user
+       ,c_address
+       ,c_begin
+       ) VALUES (
+        x#user_on_adress_sq_id.nextval
+       ,c.id
+       ,c.a2_id
+       ,c.begin2
+       );
+    END IF;
+    --
+  END LOOP;
+ END set_user_on_address;
  --
 BEGIN
  --
  set_fio;
+ set_address;
  --
 END;
 /

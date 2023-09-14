@@ -31,6 +31,7 @@ DECLARE
   t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
   t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
  BEGIN
+  -- выбираем все возможные сочетания фамилии, имени и отчества
   FOR c IN (
    SELECT
     fam.last_name
@@ -86,8 +87,12 @@ DECLARE
   t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
   t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
   t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
-  t_flat INTEGER;
+  t_flats_count CONSTANT NUMBER := 30;
+  t_flat NUMBER;
  BEGIN
+  -- выбираем все возможные сочетания населенного пункта, улицы и дома
+  -- предполагаем, что в каждом доме 30 квартир
+  -- предполагаем, что почтовый индекс уникален для каждого дома
   FOR c IN (
    SELECT
     p.place
@@ -128,7 +133,7 @@ DECLARE
     CONNECT BY
      level < 5) h
   ) LOOP
-     FOR t_flat IN 1..30
+     FOR t_flat IN 1..t_flats_count
      LOOP
         INSERT INTO x#address (
          id

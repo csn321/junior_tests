@@ -49,11 +49,8 @@ FROM
 (
  SELECT
   u.fio
- ,a.address
- ,REGEXP_SUBSTR (:str, '(\d{6})($)') postal_code
-/* ,SUBSTR(a.address
-             ,INSTR(a.address,',',1,4) + 1
-             ,LENGTH(a.address) + 1 - (INSTR(a.address,',',1,4) + 1)) postal_code*/
+ ,REGEXP_REPLACE (a.address, '(,\d{6})($)', '') address -- оставляем все, кроме индекса
+ ,REGEXP_SUBSTR (a.address, '(\d{6})($)') postal_code -- оставляем только индекс
  ,c.id user_on_address_id
  ,c.begin_date
  ,c.end_date

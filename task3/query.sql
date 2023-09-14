@@ -41,7 +41,7 @@ FROM
  FROM
   row_date
  CONNECT BY
-  LEVEL <= REGEXP_COUNT(str, '#')+1
+  LEVEL <= REGEXP_COUNT(str, '#')+1 -- количество символов '#' + 1
 ) x1
 ORDER BY
  x1.key DESC

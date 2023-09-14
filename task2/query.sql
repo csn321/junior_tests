@@ -23,9 +23,12 @@ SET FEED OFF
 --
 SPOOL query2.log
 --
-SELECT (CHR(ASCII('a') + level - 1)) FROM DUAL
+SELECT
+ (CHR(ASCII('a') + LEVEL - 1)) letters
+FROM
+ dual
 CONNECT BY
-level <= 26
+ LEVEL <= 26
 ;
 
 SPOOL OFF

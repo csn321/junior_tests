@@ -12,13 +12,10 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET LINESIZE 1000
+SET LINESIZE 3000
+SET PAGESIZE 0 EMBEDDED ON
 --
-SPOOL query2.log
---
--- Задание 2
--- Создать sql-запрос, выводящий латинский алфавит в виде строчных букв, каждая
--- буква - отдельная строка.
+SPOOL query.log
 --
 SELECT
  -- определяем ASCI-код буквы 'a', на каждом уровне вычисляем следующий символ

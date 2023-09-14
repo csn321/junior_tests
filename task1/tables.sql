@@ -1,9 +1,18 @@
-SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
-SET LINESIZE 1000 TRIMOUT ON TRIMSPOOL ON
-SET TERMOUT OFF FEEDBACK OFF
-
+--
+-- Copyright (C) ООО "ХардСофт321" https://hardsoft321.org/license
+-- Это программа является свободным программным обеспечением. Вы можете
+-- распространять и/или модифицировать её согласно условиям Стандартной
+-- Общественной Лицензии GNU, опубликованной Фондом Свободного Программного
+-- Обеспечения, версии 3.
+-- Эта программа распространяется в надежде, что она будет полезной, но БЕЗ
+-- ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ
+-- ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите Стандартную
+-- Общественную Лицензию GNU для получения дополнительной информации.
+-- Вы должны были получить копию Стандартной Общественной Лицензии GNU вместе
+-- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
+-- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
+--
 SET VERIFY OFF
-
 
 SPOOL tables.log
 
@@ -15,8 +24,7 @@ CREATE TABLE x#user
 (
   -- Идентификатор гражданина
   id              NUMBER
-                          CONSTRAINT pk_x#user_id                    PRIMARY KEY
-                          CONSTRAINT nn_x#user_id                    NOT NULL
+                          CONSTRAINT pk_x#user_id PRIMARY KEY
   -- ФИО гражданина
  ,c_fio           VARCHAR2(100)
 );
@@ -33,8 +41,7 @@ CREATE TABLE x#address
 (
   -- Идентификатор адреса
   id              NUMBER
-                          CONSTRAINT pk_x#address_id                 PRIMARY KEY
-                          CONSTRAINT nn_x#address_id                 NOT NULL
+                          CONSTRAINT pk_x#address_id PRIMARY KEY
   -- Адрес
  ,c_address       VARCHAR2(4000)
 );
@@ -51,21 +58,20 @@ CREATE TABLE x#user_on_address
 (
   -- Идентификатор прописки
   id              NUMBER
-                          CONSTRAINT pk_x#user_on_address_id         PRIMARY KEY
-                          CONSTRAINT nn_x#user_on_address_id         NOT NULL
+                          CONSTRAINT pk_x#user_on_address_id PRIMARY KEY
   -- Идентификатор гражданина
  ,c_user          NUMBER
-                          CONSTRAINT nn_x#user_on_address_c_user     NOT NULL
+                          CONSTRAINT nn_x#user_on_address_c_user NOT NULL
                           CONSTRAINT fk_x#user_on_address_c_user
                            REFERENCES x#user(id)
   -- Идентификатор адреса
  ,c_address       NUMBER
-                          CONSTRAINT nn_x#user_on_address_c_address  NOT NULL
+                          CONSTRAINT nn_x#user_on_address_c_address NOT NULL
                           CONSTRAINT fk_x#user_on_address_c_address
                            REFERENCES x#address(id)
   -- Дата прописки
  ,c_begin         DATE
-                          CONSTRAINT nn_x#user_on_address_c_begin    NOT NULL
+                          CONSTRAINT nn_x#user_on_address_c_begin NOT NULL
   -- Дата выписки
  ,c_end           DATE
 );

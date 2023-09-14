@@ -1,9 +1,28 @@
+--
+-- Copyright (C) ООО "ХардСофт321" https://hardsoft321.org/license
+-- Это программа является свободным программным обеспечением. Вы можете
+-- распространять и/или модифицировать её согласно условиям Стандартной
+-- Общественной Лицензии GNU, опубликованной Фондом Свободного Программного
+-- Обеспечения, версии 3.
+-- Эта программа распространяется в надежде, что она будет полезной, но БЕЗ
+-- ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ
+-- ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите Стандартную
+-- Общественную Лицензию GNU для получения дополнительной информации.
+-- Вы должны были получить копию Стандартной Общественной Лицензии GNU вместе
+-- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
+-- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
+--
 SET SERVEROUTPUT ON SIZE 1000000
 SET LINESIZE 1000
 
 SPOOL data.log
+---------------------------------------
+-- Заполнение таблиц тестовыми данными
+---------------------------------------
 
 DECLARE
+ --
+ -- заполнение таблицы x#user
  --
  PROCEDURE set_fio
  IS
@@ -26,7 +45,7 @@ DECLARE
     FROM
      dual
     CONNECT BY
-     LEVEL < 7) fam
+     level < 7) fam
    ,(
     SELECT
      SUBSTR(t_name
@@ -36,7 +55,7 @@ DECLARE
     FROM
      dual
     CONNECT BY
-     LEVEL < 5) name
+     level < 5) name
    ,(
     SELECT
      SUBSTR(t_fat
@@ -46,7 +65,7 @@ DECLARE
     FROM
      dual
     CONNECT BY
-     LEVEL < 5) fat
+     level < 5) fat
   ) LOOP
      INSERT INTO x#user (
       id
@@ -59,6 +78,7 @@ DECLARE
  END set_fio;
  --
  --
+ -- заполнение таблицы x#address
  --
  PROCEDURE set_address
  IS
@@ -73,40 +93,40 @@ DECLARE
     p.place
    ,s.street
    ,h.house
-   ,TO_CHAR(p.index, '99') || TO_CHAR(s.index, '99') || TO_CHAR(h.index, '99') index
+   ,TO_CHAR(p.p_index, '09') || TO_CHAR(s.p_index, '09') || TO_CHAR(h.p_index, '09') p_index
    FROM (
     SELECT
      SUBSTR(t_place
            ,DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_place, ',', 1, level), 0, LENGTH(t_place) + 1, INSTR(t_place, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)) place
-    ,60+level index
+    ,60+level p_index
     FROM
      dual
     CONNECT BY
-     LEVEL < 5) p
+     level < 5) p
    ,(
     SELECT
      SUBSTR(t_street
            ,DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_street, ',', 1, level), 0, LENGTH(t_street) + 1, INSTR(t_street, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)) street
-    ,20+level index
+    ,20+level p_index
     FROM
      dual
     CONNECT BY
-     LEVEL < 5) s
+     level < 5) s
    ,(
     SELECT
      SUBSTR(t_house
            ,DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_house, ',', 1, level), 0, LENGTH(t_house) + 1, INSTR(t_house, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)) house
-    ,10+level index
+    ,10+level p_index
     FROM
      dual
     CONNECT BY
-     LEVEL < 5) h
+     level < 5) h
   ) LOOP
      FOR t_flat IN 1..30
      LOOP
@@ -115,17 +135,17 @@ DECLARE
         ,c_address
         ) VALUES (
          x#address_sq_id.nextval
-        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.index
+        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.p_index
         );
      END LOOP;
   END LOOP;
  END set_address;
  --
  --
+ -- заполнение таблицы x#user_on_adress
  --
  PROCEDURE set_user_on_address
  IS
- DECLARE
  BEGIN
   FOR c IN (
    SELECT

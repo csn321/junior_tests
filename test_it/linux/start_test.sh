@@ -1,14 +1,14 @@
 #!/bin/bash
 
+ORACLE_CLIENT_PATH="/home/csn/instantclient_21_3"
+TNS_ADMIN="/home/csn"
+
 export NLS_LANG=AMERICAN_AMERICA.UTF8
 
 echo -n "Do you have properly installed oracle client(Y|N) (sqlplus start with no problem)? [Y]: "
 read ORA_CLIENT_
 
 if [ "$ORA_CLIENT_" == "N" ]; then
-
-   ORACLE_CLIENT_PATH="/home/csn/instantclient_21_3"
-   TNS_ADMIN="/home/csn"
 
    echo -n "Enter path to oracle client (default $ORACLE_CLIENT_PATH) and press enter: "
    read ORACLE_CLIENT_PATH_
@@ -26,7 +26,7 @@ if [ "$ORA_CLIENT_" == "N" ]; then
 
    export PATH=$ORACLE_CLIENT_PATH:$PATH
    export LD_LIBRARY_PATH=$ORACLE_CLIENT_PATH:$LD_LIBRARY_PATH
-   export TNS_ADMIN=$TNS_ADMIN
+   export TNS_ADMIN
 
 fi
 
@@ -53,4 +53,4 @@ if [[ "$ORAUID_" =~ "^[^@]+@[^@]+$" ]]; then
    exit 1
 fi
 
-sqlplus $orauid @'../../task'$TEST_NUMBER_'/query.sql'
+sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'

@@ -190,7 +190,9 @@ DECLARE
        );
     END IF;
     --
-    IF (c.a2_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
+    -- предположим - граждане с id 50, 75 и 99 - бомжи
+    -- а граждане с id 15 и 77 выписались, но не прописались
+    IF (c.a2_id IS NOT NULL AND c.id NOT IN (50, 75, 99, 15, 77)) THEN
        INSERT INTO x#user_on_adress (
         id
        ,c_user

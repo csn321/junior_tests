@@ -13,7 +13,6 @@
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
 SET LINESIZE 1000
-SET COLSEP ' | '
 --
 SPOOL query2.log
 --
@@ -22,11 +21,12 @@ SPOOL query2.log
 -- буква - отдельная строка.
 --
 SELECT
- (CHR(ASCII('a') + LEVEL - 1)) letters
+ -- определяем ASCI-код буквы 'a', на каждом уровне вычисляем следующий символ
+ TRIM((CHR(ASCII('a') + LEVEL - 1))) letters
 FROM
  dual
 CONNECT BY
- LEVEL <= 26
+ LEVEL <= 26 -- количество букв
 ;
 
 SPOOL OFF

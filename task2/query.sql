@@ -12,7 +12,7 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET LINESIZE 3000
+SET LINESIZE 1000
 SET PAGESIZE 0 EMBEDDED ON
 --
 SPOOL query.log

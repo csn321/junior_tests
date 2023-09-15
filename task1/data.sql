@@ -22,64 +22,59 @@ SPOOL data.log
 -- Импорт в схему синхронизации договоров в режиме "онлайн"
 DECLARE
  --
- t_fam CONSTANT VARCHAR2(100) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
- t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
- t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
- t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
- t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
- t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
- t_flats_count CONSTANT NUMBER := 30;
- t_flat NUMBER;
+-- t_fam CONSTANT VARCHAR2(100) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
+-- t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
+-- t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
+-- t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
+-- t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
+-- t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
+-- t_flats_count CONSTANT NUMBER := 30;
+-- t_flat NUMBER;
+ --
  -- заполнение таблицы x#user
  --
  PROCEDURE set_fio
  IS
+  t_fam CONSTANT       VARCHAR2(50) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
+  t_name CONSTANT      VARCHAR2(50) := 'Иван,Петр,Федор,Семен';
+  t_fat CONSTANT       VARCHAR2(50) := 'Иванович,Петрович,Федорович,Семенович';
+  t_regexp CONSTANT    VARCHAR2(20) := '[^,]+(,|$)';
+  t_delimiter CONSTANT VARCHAR2(1) := ',';
  BEGIN
   -- выбираем все возможные сочетания фамилии, имени и отчества
-  FOR c IN (
+  INSERT INTO x#user (
+   id
+  ,c_fio
+  )
+  SELECT
+   x#user_sq_id.nextval
+  ,fam.last_name || t_delimiter || name.first_name || t_delimiter || fat.second_name
+  FROM (
    SELECT
-    fam.last_name
-   ,name.first_name
-   ,fat.second_name
-   FROM (
-    SELECT
-     SUBSTR(t_fam
-           ,DECODE(level, 1, 1, INSTR(t_fam, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_fam, ',', 1, level), 0, LENGTH(t_fam) + 1, INSTR(t_fam, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_fam, ',', 1, level - 1) + 1)) last_name
+    RTRIM(regexp_substr(t_fam, t_regexp, 1, LEVEL), t_delimiter) last_name
+   FROM
+    dual
+   CONNECT BY
+    LEVEL <= REGEXP_COUNT(t_fam, t_delimiter) + 1
+   ) fam
+  ,(SELECT
+     RTRIM(regexp_substr(t_name, t_regexp, 1, LEVEL), t_delimiter) first_name
     FROM
      dual
     CONNECT BY
-     level < 7) fam
-   ,(
-    SELECT
-     SUBSTR(t_name
-           ,DECODE(level, 1, 1, INSTR(t_name, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_name, ',', 1, level), 0, LENGTH(t_name) + 1, INSTR(t_name, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_name, ',', 1, level - 1) + 1)) first_name
+     LEVEL <= REGEXP_COUNT(t_name, t_delimiter) + 1
+   ) name
+   ,(SELECT
+     RTRIM(regexp_substr(t_fat, t_regexp, 1, LEVEL), t_delimiter) second_name
     FROM
      dual
     CONNECT BY
-     level < 5) name
-   ,(
-    SELECT
-     SUBSTR(t_fat
-           ,DECODE(level, 1, 1, INSTR(t_fat, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_fat, ',', 1, level), 0, LENGTH(t_fat) + 1, INSTR(t_fat, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_fat, ',', 1, level - 1) + 1)) second_name
-    FROM
-     dual
-    CONNECT BY
-     level < 5) fat
-  ) LOOP
-     INSERT INTO x#user (
-      id
-     ,c_fio
-     ) VALUES (
-      x#user_sq_id.nextval
-     ,c.last_name || ',' || c.first_name || ',' || c.second_name
-     );
-  END LOOP;
+     LEVEL <= REGEXP_COUNT(t_fat, t_delimiter) + 1
+   ) fat;
+ EXCEPTION
+  WHEN OTHERS THEN
+   dbms_output.put_line('Ошибка при заполнении таблицы x#user: '||SUBSTR (SQLERRM, 1, 2000));
+   RAISE;
  END set_fio;
  --
  --

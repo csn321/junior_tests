@@ -88,7 +88,7 @@ DECLARE
   SELECT
    x#address_sq_id.nextval id
   ,'г.' || p.place || ',ул.' || s.street || g_delimiter || h.house || g_delimiter || TRIM(TO_CHAR(f.flat, '99'))
-    || g_delimiter || TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) 
+    || g_delimiter || TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09'))
     || TRIM(TO_CHAR(h.postal_code, '09')) c_address
   FROM (
    SELECT
@@ -141,8 +141,9 @@ DECLARE
   ,c_end
   )
   SELECT
-   x1.id id
-  ,x1.a1_id c_user
+   x#user_on_address_sq_id.nextval
+   x1.id user_id
+  ,DECODE(t1.type, 1, x1.a1_id, x1.a2_id) address
   ,DECODE(t1.type, 1, x1.begin1, x1.begin2) begin1
   ,DECODE(t1.type, 1, x1.end1, TO_DATE(NULL)) end1
   FROM (

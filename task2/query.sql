@@ -12,16 +12,10 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-<<<<<<< HEAD
 SET FEED OFF
 SET HEADING OFF
 SET PAGESIZE 10000
 SET LINESIZE 1
-
-=======
-SET LINESIZE 1000
-SET PAGESIZE 0 EMBEDDED ON
->>>>>>> 96b7b068dcb855e33e46465cdc27491dfa593653
 --
 SPOOL query.log
 --

@@ -12,12 +12,7 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-<<<<<<< HEAD
 SET LINESIZE 31
-=======
-SET LINESIZE 1000
-SET PAGESIZE 0 EMBEDDED ON
->>>>>>> 96b7b068dcb855e33e46465cdc27491dfa593653
 SET COLSEP ' | '
 SET FEED OFF
 SET PAGESIZE 10000
@@ -25,7 +20,6 @@ SET PAGESIZE 10000
 COLUMN key HEADING "Ключ" FORMAT a20
 COLUMN value HEADING "Значение" FORMAT a8
 --
-<<<<<<< HEAD
 SPOOL query3.log
 --
 -- Задание 3

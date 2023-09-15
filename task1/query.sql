@@ -113,13 +113,11 @@ WHERE
 OR
 -- действующий адрес
 (:p_mode = 1
- AND x2.begin_date IS NOT NULL
- AND x2.end_date IS NULL)
+ AND x2.address IS NOT NULL)
 OR
  -- нет действующего адреса
 (:p_mode = -1
- AND (x2.begin_date IS NULL
-    OR x2.end_date IS NOT NULL))
+ AND x2.address IS NULL)
 ;
 
 SPOOL OFF

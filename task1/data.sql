@@ -22,24 +22,15 @@ SPOOL data.log
 -- Импорт в схему синхронизации договоров в режиме "онлайн"
 DECLARE
  --
--- t_fam CONSTANT VARCHAR2(100) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
--- t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
--- t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
--- t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
--- t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
--- t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
--- t_flats_count CONSTANT NUMBER := 30;
--- t_flat NUMBER;
- --
+ g_regexp      CONSTANT VARCHAR2(20) := '[^,]+(,|$)';
+ g_delimiter   CONSTANT VARCHAR2(1) := ',';
  -- заполнение таблицы x#user
  --
  PROCEDURE set_fio
  IS
-  t_fam CONSTANT       VARCHAR2(50) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
-  t_name CONSTANT      VARCHAR2(50) := 'Иван,Петр,Федор,Семен';
-  t_fat CONSTANT       VARCHAR2(50) := 'Иванович,Петрович,Федорович,Семенович';
-  t_regexp CONSTANT    VARCHAR2(20) := '[^,]+(,|$)';
-  t_delimiter CONSTANT VARCHAR2(1) := ',';
+  t_last_name   CONSTANT VARCHAR2(50) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
+  t_first_name  CONSTANT VARCHAR2(50) := 'Иван,Петр,Федор,Семен';
+  t_second_name CONSTANT VARCHAR2(50) := 'Иванович,Петрович,Федорович,Семенович';
  BEGIN
   -- выбираем все возможные сочетания фамилии, имени и отчества
   INSERT INTO x#user (
@@ -47,30 +38,30 @@ DECLARE
   ,c_fio
   )
   SELECT
-   x#user_sq_id.nextval
-  ,fam.last_name || t_delimiter || name.first_name || t_delimiter || fat.second_name
+   x#user_sq_id.nextval id
+  ,x1.last_name || g_delimiter || x2.first_name || g_delimiter || x3.second_name c_fio
   FROM (
    SELECT
-    RTRIM(regexp_substr(t_fam, t_regexp, 1, LEVEL), t_delimiter) last_name
+    RTRIM(regexp_substr(t_last_name, g_regexp, 1, LEVEL), g_delimiter) last_name
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(t_fam, t_delimiter) + 1
-   ) fam
+    LEVEL <= REGEXP_COUNT(t_last_name, g_delimiter) + 1
+   ) x1
   ,(SELECT
-     RTRIM(regexp_substr(t_name, t_regexp, 1, LEVEL), t_delimiter) first_name
+     RTRIM(regexp_substr(t_first_name, g_regexp, 1, LEVEL), g_delimiter) first_name
     FROM
      dual
     CONNECT BY
-     LEVEL <= REGEXP_COUNT(t_name, t_delimiter) + 1
-   ) name
+     LEVEL <= REGEXP_COUNT(t_first_name, g_delimiter) + 1
+   ) x2
    ,(SELECT
-     RTRIM(regexp_substr(t_fat, t_regexp, 1, LEVEL), t_delimiter) second_name
+     RTRIM(regexp_substr(t_second_name, g_regexp, 1, LEVEL), g_delimiter) second_name
     FROM
      dual
     CONNECT BY
-     LEVEL <= REGEXP_COUNT(t_fat, t_delimiter) + 1
-   ) fat;
+     LEVEL <= REGEXP_COUNT(t_second_name, g_delimiter) + 1
+   ) x3;
  EXCEPTION
   WHEN OTHERS THEN
    dbms_output.put_line('Ошибка при заполнении таблицы x#user: '||SUBSTR (SQLERRM, 1, 2000));
@@ -82,6 +73,10 @@ DECLARE
  --
  PROCEDURE set_address
  IS
+  t_place       CONSTANT VARCHAR2(50) := 'Омск,Курган,Новосибирск,Тюмень';
+  t_street      CONSTANT VARCHAR2(50) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
+  t_house       CONSTANT VARCHAR2(50) := '1,2,15,8,33,142,11,56,72';
+  t_flats_count CONSTANT NUMBER := 30;
  BEGIN
   -- выбираем все возможные сочетания населенного пункта, улицы и дома
   -- предполагаем, что в каждом доме 30 квартир
@@ -91,32 +86,34 @@ DECLARE
   ,c_address
   )
   SELECT
-   x#address_sq_id.nextval
-  ,'г.' || p.place || ',ул.' || s.street || ',' || h.house || ',' || TRIM(TO_CHAR(f.flat, '99')) || ',' || TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) || TRIM(TO_CHAR(h.postal_code, '09'))
+   x#address_sq_id.nextval id
+  ,'г.' || p.place || ',ул.' || s.street || g_delimiter || h.house || g_delimiter || TRIM(TO_CHAR(f.flat, '99'))
+    || g_delimiter || TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) 
+    || TRIM(TO_CHAR(h.postal_code, '09')) c_address
   FROM (
    SELECT
-    REGEXP_SUBSTR (:t_place,'([^,]+)', 1, LEVEL) place
+    REGEXP_SUBSTR (t_place, g_regexp, 1, LEVEL) place
    ,60 + LEVEL postal_code
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(:t_place, ',') + 1) p
+    LEVEL <= REGEXP_COUNT(t_place, g_delimiter) + 1) p
   ,(
    SELECT
-    REGEXP_SUBSTR (:t_street,'([^,]+)', 1, LEVEL) street
+    REGEXP_SUBSTR (t_street, g_regexp, 1, LEVEL) street
    ,20 + LEVEL postal_code
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(:t_street, ',') + 1) s
+    LEVEL <= REGEXP_COUNT(t_street, g_delimiter) + 1) s
   ,(
    SELECT
-    REGEXP_SUBSTR (:t_house,'([^,]+)', 1, LEVEL) house
+    REGEXP_SUBSTR (t_house, g_regexp, 1, LEVEL) house
    ,10 + LEVEL postal_code
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(:t_house, ',') + 1) h
+    LEVEL <= REGEXP_COUNT(t_house, g_delimiter) + 1) h
   ,(
    SELECT
     LEVEL flat
@@ -128,7 +125,6 @@ DECLARE
   WHEN OTHERS THEN
    dbms_output.put_line('Ошибка при заполнении таблицы x#address: '||SUBSTR (SQLERRM, 1, 2000));
    RAISE;
-
  END set_address;
  --
  --
@@ -143,10 +139,10 @@ DECLARE
   ,c_address
   ,c_begin
   ,c_end
-  ) AS
+  )
   SELECT
-   x1.id
-  ,x1.a1_id
+   x1.id id
+  ,x1.a1_id c_user
   ,DECODE(t1.type, 1, x1.begin1, x1.begin2) begin1
   ,DECODE(t1.type, 1, x1.end1, TO_DATE(NULL)) end1
   FROM (
@@ -167,17 +163,24 @@ DECLARE
     FROM
      x#user u
    ) u1
-   LEFT OUTER JOIN x#address a1 ON (a1.id = u1.id)
-   LEFT OUTER JOIN x#address a2 ON (a2.id = u1.id + u1.max_id) --AND u1.id NOT IN (15, 77)
-   WHERE u1.id NOT IN (50, 75, 99) -- предположим - граждане с id 50, 75 и 99 - бомжи
+   LEFT OUTER JOIN x#address a1
+    ON (a1.id = u1.id)
+   LEFT OUTER JOIN x#address a2
+    ON (a2.id = u1.id + u1.max_id) --AND u1.id NOT IN (15, 77)
+   WHERE
+    u1.id NOT IN (50, 75, 99) -- предположим - граждане с id 50, 75 и 99 - бомжи
   ) x1
   ,(SELECT 1 type FROM DUAL
-   UNION ALL
-   SELECT 2 type FROM DUAL
+    UNION ALL
+    SELECT 2 type FROM DUAL
    ) t1
    WHERE
     t1.type = 1 OR x1.id NOT IN (15, 77) -- граждане с id 15 и 77 выписались, но не прописались
    ;
+ EXCEPTION
+  WHEN OTHERS THEN
+   dbms_output.put_line('Ошибка при заполнении таблицы x#user_on_address: '||SUBSTR (SQLERRM, 1, 2000));
+   RAISE;
  END set_user_on_address;
  --
 BEGIN
@@ -192,4 +195,5 @@ END;
 COMMIT;
 
 SPOOL OFF
+
 EXIT

@@ -40,9 +40,9 @@ DECLARE
  e_fatal_error EXCEPTION;
  g_msg_text    VARCHAR2(2000) := NULL;
 BEGIN
- SELECT COUNT(1) INTO t_count FROM user_tables WHERE table_name = 'C#USER';
- IF (t_count = 0) THEN
-    g_msg_text := 'ORA-20321: таблица c_objects не создана! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
+ SELECT COUNT(1) INTO t_count FROM user_tables WHERE table_name IN ('X#USER', 'X#ADDRESS', 'X#USER_ON_ADDRESS');
+ IF (t_count < 3) THEN
+    g_msg_text := 'ORA-20321: одна или несколько таблиц не созданы! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
     :p_msg_text := g_msg_text;
     RAISE e_fatal_error;
  END IF;

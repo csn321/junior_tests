@@ -22,7 +22,7 @@ SPOOL data.log
 -- Импорт в схему синхронизации договоров в режиме "онлайн"
 DECLARE
  --
- g_regexp      CONSTANT VARCHAR2(20) := '[^,]+(,|$)';
+ g_regexp      CONSTANT VARCHAR2(20) := '[^,]+';
  g_delimiter   CONSTANT VARCHAR2(1) := ',';
  -- заполнение таблицы x#user
  --
@@ -42,21 +42,21 @@ DECLARE
   ,x1.last_name || g_delimiter || x2.first_name || g_delimiter || x3.second_name c_fio
   FROM (
    SELECT
-    RTRIM(regexp_substr(t_last_name, g_regexp, 1, LEVEL), g_delimiter) last_name
+    REGEXP_SUBSTR(t_last_name, g_regexp, 1, LEVEL) last_name
    FROM
     dual
    CONNECT BY
     LEVEL <= REGEXP_COUNT(t_last_name, g_delimiter) + 1
    ) x1
   ,(SELECT
-     RTRIM(regexp_substr(t_first_name, g_regexp, 1, LEVEL), g_delimiter) first_name
+     REGEXP_SUBSTR(t_first_name, g_regexp, 1, LEVEL) first_name
     FROM
      dual
     CONNECT BY
      LEVEL <= REGEXP_COUNT(t_first_name, g_delimiter) + 1
    ) x2
    ,(SELECT
-     RTRIM(regexp_substr(t_second_name, g_regexp, 1, LEVEL), g_delimiter) second_name
+     REGEXP_SUBSTR(t_second_name, g_regexp, 1, LEVEL) second_name
     FROM
      dual
     CONNECT BY
@@ -97,7 +97,8 @@ DECLARE
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(t_place, g_delimiter) + 1) p
+    LEVEL <= REGEXP_COUNT(t_place, g_delimiter) + 1
+   ) p
   ,(
    SELECT
     REGEXP_SUBSTR (t_street, g_regexp, 1, LEVEL) street
@@ -105,7 +106,8 @@ DECLARE
    FROM
     dual
    CONNECT BY
-    LEVEL <= REGEXP_COUNT(t_street, g_delimiter) + 1) s
+    LEVEL <= REGEXP_COUNT(t_street, g_delimiter) + 1
+   ) s
   ,(
    SELECT
     REGEXP_SUBSTR (t_house, g_regexp, 1, LEVEL) house
@@ -142,7 +144,7 @@ DECLARE
   )
   SELECT
    x#user_on_address_sq_id.nextval
-   x1.id user_id
+  ,x1.id user_id
   ,DECODE(t1.type, 1, x1.a1_id, x1.a2_id) address
   ,DECODE(t1.type, 1, x1.begin1, x1.begin2) begin1
   ,DECODE(t1.type, 1, x1.end1, TO_DATE(NULL)) end1

@@ -43,6 +43,8 @@ IF EXIST query.log (
   del /F /Q  query.log
 )
 
+chcp 65001
+
 sqlplus %ORAUID% @"../../task%TEST_NUMBER%/query.sql"
 
 rename query.log "query%TEST_NUMBER%_%START_DATE%_%PLATFORM%.log"

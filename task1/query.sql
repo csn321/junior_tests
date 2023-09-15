@@ -31,7 +31,6 @@ VARIABLE p_mode NUMBER;
 VARIABLE p_msg_text VARCHAR2(2000);
 BEGIN
  SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
- SELECT 0 INTO :p_is_error FROM dual;
 END;
 /
 --

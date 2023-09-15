@@ -16,15 +16,14 @@ SET LINESIZE 200
 SET MARKUP HTML PREFORMAT ON
 SET PAGESIZE 0 EMBEDDED ON
 SET COLSEP ' | '
+SET FEED OFF
 --
-COLUMN fio HEADING "ФИО" FORMAT a50
-COLUMN address HEADING "Адрес" FORMAT a50
+COLUMN fio HEADING "ФИО" FORMAT a40
+COLUMN address HEADING "Адрес" FORMAT a40
 COLUMN postal_code HEADING "Почтовый индекс" FORMAT a16
 COLUMN begin_date HEADING "Дата прописки" FORMAT a14
 COLUMN end_date HEADING "Дата выписки" FORMAT a14
 COLUMN error_text HEADING "Тескт ошибки" FORMAT a120
---
-SPOOL query.log
 --
 ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнения запроса [-1, 0, 1]: '
 --
@@ -53,6 +52,8 @@ EXCEPTION
   g_msg_text := SQLERRM;
 END;
 /
+--
+SPOOL query.log
 --
 SELECT :p_msg_text error_text FROM DUAL;
 --

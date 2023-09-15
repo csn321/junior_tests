@@ -20,18 +20,20 @@ SPOOL data.log
 -- Заполнение таблиц тестовыми данными
 ---------------------------------------
 -- Импорт в схему синхронизации договоров в режиме "онлайн"
---CREATE OR REPLACE PROCEDURE set_data ()
---AS $body$
 DECLARE
  --
+ t_fam CONSTANT VARCHAR2(100) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
+ t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
+ t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
+ t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
+ t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
+ t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
+ t_flats_count CONSTANT NUMBER := 30;
+ t_flat NUMBER;
  -- заполнение таблицы x#user
  --
  PROCEDURE set_fio
  IS
- DECLARE
-  t_fam CONSTANT VARCHAR2(100) := 'Иванов,Петров,Федоров,Зайцев,Семенов,Волков';
-  t_name CONSTANT VARCHAR2(100) := 'Иван,Петр,Федор,Семен';
-  t_fat CONSTANT VARCHAR2(100) := 'Иванович,Петрович,Федорович,Семенович';
  BEGIN
   -- выбираем все возможные сочетания фамилии, имени и отчества
   FOR c IN (
@@ -85,12 +87,6 @@ DECLARE
  --
  PROCEDURE set_address
  IS
- DECLARE
-  t_place CONSTANT VARCHAR2(100) := 'Омск,Курган,Новосибирск,Тюмень';
-  t_street CONSTANT VARCHAR2(100) := 'Пушкина,Карла Маркса,Лермонтова,Мира,Ленина';
-  t_house CONSTANT VARCHAR2(100) := '1,2,15,8,33,142,11,56,72';
-  t_flats_count CONSTANT NUMBER := 30;
-  t_flat NUMBER;
  BEGIN
   -- выбираем все возможные сочетания населенного пункта, улицы и дома
   -- предполагаем, что в каждом доме 30 квартир
@@ -107,7 +103,7 @@ DECLARE
            ,DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_place, ',', 1, level), 0, LENGTH(t_place) + 1, INSTR(t_place, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)) place
-    ,60+level postal_code
+    ,60 + level postal_code
     FROM
      dual
     CONNECT BY
@@ -118,7 +114,7 @@ DECLARE
            ,DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_street, ',', 1, level), 0, LENGTH(t_street) + 1, INSTR(t_street, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)) street
-    ,20+level postal_code
+    ,20 + level postal_code
     FROM
      dual
     CONNECT BY
@@ -129,7 +125,7 @@ DECLARE
            ,DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)
            ,DECODE(INSTR(t_house, ',', 1, level), 0, LENGTH(t_house) + 1, INSTR(t_house, ',', 1, level))
             - DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)) house
-    ,10+level postal_code
+    ,10 + level postal_code
     FROM
      dual
     CONNECT BY
@@ -142,7 +138,7 @@ DECLARE
         ,c_address
         ) VALUES (
          x#address_sq_id.nextval
-        ,'г.'c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.postal_code
+        ,'г.' || c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.postal_code
         );
      END LOOP;
   END LOOP;
@@ -177,14 +173,14 @@ DECLARE
   ) LOOP
     -- предположим - граждане с id 50, 75 и 99 - бомжи
     IF (c.a1_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
-       INSERT INTO x#user_on_adress (
+       INSERT INTO x#user_on_address (
         id
        ,c_user
        ,c_address
        ,c_begin
        ,c_end
        ) VALUES (
-        x#user_on_adress_sq_id.nextval
+        x#user_on_address_sq_id.nextval
        ,c.id
        ,c.a1_id
        ,c.begin1
@@ -195,13 +191,13 @@ DECLARE
     -- предположим - граждане с id 50, 75 и 99 - бомжи
     -- а граждане с id 15 и 77 выписались, но не прописались
     IF (c.a2_id IS NOT NULL AND c.id NOT IN (50, 75, 99, 15, 77)) THEN
-       INSERT INTO x#user_on_adress (
+       INSERT INTO x#user_on_address (
         id
        ,c_user
        ,c_address
        ,c_begin
        ) VALUES (
-        x#user_on_adress_sq_id.nextval
+        x#user_on_address_sq_id.nextval
        ,c.id
        ,c.a2_id
        ,c.begin2
@@ -223,3 +219,4 @@ END;
 COMMIT;
 
 SPOOL OFF
+EXIT

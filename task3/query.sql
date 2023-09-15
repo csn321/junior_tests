@@ -12,15 +12,20 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET LINESIZE 1000
+SET LINESIZE 31
 SET COLSEP ' | '
+SET FEED OFF
+SET PAGESIZE 10000
+--
+COLUMN key HEADING "Ключ" FORMAT a20
+COLUMN value HEADING "Значение" FORMAT a8
 --
 SPOOL query3.log
 --
 -- Задание 3
 -- Создать sql-запрос, который преобразует строку, состоящую из пар
 -- «ключ:значение», разделенных символом «#», в таблицу с двумя колонками
--- &quot;Ключ&quot; и &quot;Значение&quot;, отсортировать по полю &quot;Значение&quot; по убыванию.
+-- "Ключ" и "Значение", отсортировать по полю "Значение" по убыванию.
 -- Пример строки:
 -- Аналитик:1#Разработчик:12#Тестировщик:10#Менеджер:3
 --
@@ -41,7 +46,7 @@ FROM
  FROM
   row_date
  CONNECT BY
-  LEVEL <= REGEXP_COUNT(str, '#')+1 -- количество символов '#' + 1
+  LEVEL <= REGEXP_COUNT(str, '#') + 1 -- количество символов '#' + 1
 ) x1
 ORDER BY
  x1.key DESC

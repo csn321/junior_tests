@@ -150,7 +150,19 @@ DECLARE
  PROCEDURE set_user_on_address
  IS
  BEGIN
-  FOR c IN (
+  INSERT INTO x#user_on_address (
+   id
+  ,c_user
+  ,c_address
+  ,c_begin
+  ,c_end
+  ) AS
+  SELECT
+   x1.id
+  ,x1.a1_id
+  ,DECODE(t1.type, 1, x1.begin1, x1.begin2) begin1
+  ,DECODE(t1.type, 1, x1.end1, TO_DATE(NULL)) end1
+  FROM (
    SELECT
     u1.id
    ,u1.c_fio
@@ -169,42 +181,16 @@ DECLARE
      x#user u
    ) u1
    LEFT OUTER JOIN x#address a1 ON (a1.id = u1.id)
-   LEFT OUTER JOIN x#address a2 ON (a2.id = u1.id + u1.max_id)
-  ) LOOP
-    -- предположим - граждане с id 50, 75 и 99 - бомжи
-    IF (c.a1_id IS NOT NULL AND c.id NOT IN (50, 75, 99)) THEN
-       INSERT INTO x#user_on_address (
-        id
-       ,c_user
-       ,c_address
-       ,c_begin
-       ,c_end
-       ) VALUES (
-        x#user_on_address_sq_id.nextval
-       ,c.id
-       ,c.a1_id
-       ,c.begin1
-       ,c.end1
-       );
-    END IF;
-    --
-    -- предположим - граждане с id 50, 75 и 99 - бомжи
-    -- а граждане с id 15 и 77 выписались, но не прописались
-    IF (c.a2_id IS NOT NULL AND c.id NOT IN (50, 75, 99, 15, 77)) THEN
-       INSERT INTO x#user_on_address (
-        id
-       ,c_user
-       ,c_address
-       ,c_begin
-       ) VALUES (
-        x#user_on_address_sq_id.nextval
-       ,c.id
-       ,c.a2_id
-       ,c.begin2
-       );
-    END IF;
-    --
-  END LOOP;
+   LEFT OUTER JOIN x#address a2 ON (a2.id = u1.id + u1.max_id) --AND u1.id NOT IN (15, 77)
+   WHERE u1.id NOT IN (50, 75, 99) -- предположим - граждане с id 50, 75 и 99 - бомжи
+  ) x1
+  ,(SELECT 1 type FROM DUAL
+   UNION ALL
+   SELECT 2 type FROM DUAL
+   ) t1
+   WHERE
+    t1.type = 1 OR x1.id NOT IN (15, 77) -- граждане с id 15 и 77 выписались, но не прописались
+   ;
  END set_user_on_address;
  --
 BEGIN

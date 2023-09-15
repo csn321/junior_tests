@@ -72,26 +72,25 @@ SELECT
 FROM (
  SELECT
   x1.fio
- ,x1.address
- ,x1.postal_code
+ ,CASE
+   WHEN (x1.end_date IS NULL) THEN
+    REGEXP_REPLACE (x1.address, '(,\d{6})($)', '') -- оставляем все, кроме индекса
+   ELSE
+    ''
+   END address
+ ,CASE
+   WHEN (x1.end_date IS NULL) THEN
+    REGEXP_SUBSTR (x1.address, '(\d{6})($)') -- оставляем только индекс
+   ELSE
+    ''
+   END postal_code
  ,x1.begin_date
  ,x1.end_date
  ,x1.rn
  FROM (
   SELECT
    REPLACE(u.c_fio, ',', ' ') fio
-  ,CASE
-    WHEN (c.c_end IS NULL) THEN
-     REGEXP_REPLACE (a.c_address, '(,\d{6})($)', '') -- оставляем все, кроме индекса
-    ELSE
-     ''
-    END address
-  ,CASE
-    WHEN (c.c_end IS NULL) THEN
-     REGEXP_SUBSTR (a.c_address, '(\d{6})($)') -- оставляем только индекс
-    ELSE
-     ''
-    END postal_code
+  ,a.c_address address
   ,c.id user_on_address_id
   ,c.c_begin begin_date
   ,c.c_end end_date
@@ -123,4 +122,3 @@ OR
 SPOOL OFF
 
 EXIT
-

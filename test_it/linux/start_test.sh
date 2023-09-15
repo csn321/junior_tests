@@ -65,4 +65,4 @@ rm -f query.log
 
 sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
 
-mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null
+mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d%H%M'`_${PLATFORM}.log" 2>/dev/null

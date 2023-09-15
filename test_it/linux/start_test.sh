@@ -13,19 +13,19 @@ TNS_ADMIN="/home/csn"
 
 export NLS_LANG=AMERICAN_AMERICA.UTF8
 
-echo -n "Do you have properly installed oracle client(Y|N) (sqlplus start with no problem)? [Y]: "
+echo -n "У вас установлен и настроен oracle-клиент таким образом, что sqlplus запускается из командной строки (Y|N)? [Y]: "
 read ORA_CLIENT_
 
 if [ "$ORA_CLIENT_" == "N" ]; then
 
-   echo -n "Enter path to oracle client (default $ORACLE_CLIENT_PATH) and press enter: "
+   echo -n "Предполагаю, что oracle-клиент установлен локально. Укажите путь к oracle-клиенту (по-умолчанию $ORACLE_CLIENT_PATH) и нажмите ввод: "
    read ORACLE_CLIENT_PATH_
 
    if [ -n "$ORACLE_CLIENT_PATH_" ]; then
       ORACLE_CLIENT_PATH=$ORACLE_CLIENT_PATH_
    fi
 
-   echo -n "Enter path to tnsnames.ora (default $TNS_ADMIN) and press enter: "
+   echo -n "Укажите путь к файлу tnsnames.ora (по-умолчанию $TNS_ADMIN) и нажмите ввод: "
    read TNS_ADMIN_
 
    if [ -n "$TNS_ADMIN_" ]; then
@@ -38,26 +38,26 @@ if [ "$ORA_CLIENT_" == "N" ]; then
 
 fi
 
-echo -n "Enter test number (1, 2, 3) and press enter: "
+echo -n "Укажите номер теста (1|2|3) и нажмите ввод: "
 read TEST_NUMBER_
 
 if [ -z "$TEST_NUMBER_" ] || ! [[ $TEST_NUMBER_ =~ ^[1-3]{1}$ ]]; then
-   echo "Error. Incorrect test number!"
+   echo "Ошибка! Указан некорректный номер теста."
    exit 1
 fi
 
-echo "Execute test" $TEST_NUMBER_
+echo "Выполняю тест" $TEST_NUMBER_
 
-echo -n "Enter the connect string (username@tnsname) and press enter: "
+echo -n "Введите строку соединения с базой данных в формате username@tnsname и нажмите ввод: "
 read ORAUID_
 
 if [ -z "$ORAUID_" ]; then
-   echo "Error. Incorrect connect string (empty)!"
+   echo "Ошибка! Указана некорректная строка соединения с базой данных (пустая)."
    exit 1
 fi
 
-if [[ "$ORAUID_" =~ "^[^@]+@[^@]+$" ]]; then
-   echo "Error. Incorrect connect string (format)!"
+if ! [[ $ORAUID_ =~ ^[^@]+@[^@]+$ ]]; then
+   echo "Ошибка! Указана некорректная строка соединения с базой данных (неправильный формат)."
    exit 1
 fi
 
@@ -65,4 +65,4 @@ rm -f query.log
 
 sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
 
-mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log"
+mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null

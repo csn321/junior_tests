@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#PLATFORM=linux
+
+PLATFORM=`hostnamectl | grep "Operating"`
+PLATFORM=${PLATFORM#*\:}
+PLATFORM=`echo $PLATFORM | xargs`
+PLATFORM=${PLATFORM// /_}
+PLATFORM=${PLATFORM//\./_}
+
 ORACLE_CLIENT_PATH="/home/csn/instantclient_21_3"
 TNS_ADMIN="/home/csn"
 
@@ -53,4 +61,8 @@ if [[ "$ORAUID_" =~ "^[^@]+@[^@]+$" ]]; then
    exit 1
 fi
 
+rm -f query.log
+
 sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
+
+mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log"

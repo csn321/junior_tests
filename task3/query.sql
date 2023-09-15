@@ -20,8 +20,6 @@ SET PAGESIZE 0 EMBEDDED ON
 COLUMN key HEADING "Ключ" FORMAT a20
 COLUMN value HEADING "Значение" FORMAT a8
 --
-SPOOL query3.log
---
 -- Задание 3
 -- Создать sql-запрос, который преобразует строку, состоящую из пар
 -- «ключ:значение», разделенных символом «#», в таблицу с двумя колонками

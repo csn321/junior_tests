@@ -1,15 +1,24 @@
-SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
-SET LINESIZE 1000 TRIMOUT ON TRIMSPOOL ON
-SET TERMOUT OFF FEEDBACK OFF
-
-SET VERIFY OFF
+--
+-- Copyright (C) ООО "ХардСофт321" https://hardsoft321.org/license
+-- Это программа является свободным программным обеспечением. Вы можете
+-- распространять и/или модифицировать её согласно условиям Стандартной
+-- Общественной Лицензии GNU, опубликованной Фондом Свободного Программного
+-- Обеспечения, версии 3.
+-- Эта программа распространяется в надежде, что она будет полезной, но БЕЗ
+-- ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ
+-- ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите Стандартную
+-- Общественную Лицензию GNU для получения дополнительной информации.
+-- Вы должны были получить копию Стандартной Общественной Лицензии GNU вместе
+-- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
+-- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
+--
 
 SPOOl sequences.log
 
 ----------------------------------------------------------------------------
 --  Последовательность идентификаторов записей в таблице x#user
 ----------------------------------------------------------------------------
-PROMPT CREATE SEQUENCE x#user_sq_id
+PROMPT -- CREATE SEQUENCE x#user_sq_id
 CREATE SEQUENCE x#user_sq_id
  INCREMENT BY 1
  START WITH 1
@@ -19,7 +28,7 @@ CREATE SEQUENCE x#user_sq_id
 ----------------------------------------------------------------------------
 --  Последовательность идентификаторов записей в таблице x#address
 ----------------------------------------------------------------------------
-PROMPT CREATE SEQUENCE x#address_sq_id
+PROMPT -- CREATE SEQUENCE x#address_sq_id
 CREATE SEQUENCE x#address_sq_id
  INCREMENT BY 1
  START WITH 1
@@ -29,7 +38,7 @@ CREATE SEQUENCE x#address_sq_id
 ----------------------------------------------------------------------------
 --  Последовательность идентификаторов записей в таблице x#user_on_address
 ----------------------------------------------------------------------------
-PROMPT CREATE SEQUENCE x#user_on_address_sq_id
+PROMPT -- CREATE SEQUENCE x#user_on_address_sq_id
 CREATE SEQUENCE x#user_on_address_sq_id
  INCREMENT BY 1
  START WITH 1

@@ -12,10 +12,17 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET LINESIZE 1000
+SET LINESIZE 200
 SET MARKUP HTML PREFORMAT ON
 SET PAGESIZE 0 EMBEDDED ON
 SET COLSEP ' | '
+--
+COLUMN fio HEADING "ФИО" FORMAT a50
+COLUMN address HEADING "Адрес" FORMAT a50
+COLUMN postal_code HEADING "Почтовый индекс" FORMAT a16
+COLUMN begin_date HEADING "Дата прописки" FORMAT a14
+COLUMN end_date HEADING "Дата выписки" FORMAT a14
+
 --
 SPOOL query.log
 --
@@ -31,8 +38,8 @@ SELECT
  x1.fio
 ,x1.address
 ,x1.postal_code
-,x1.begin_date
-,x1.end_date
+,TO_CHAR(x1.begin_date, 'DD.MM.YYYY') begin_date
+,TO_CHAR(x1.end_date, 'DD.MM.YYYY') end_date
 FROM
 (
  SELECT

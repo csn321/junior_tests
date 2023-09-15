@@ -46,9 +46,9 @@ CREATE TABLE x#address
  ,c_address       VARCHAR2(4000)
 );
 
-COMMENT ON TABLE  x#address       IS 'Адреса';
-COMMENT ON COLUMN x#address.id    IS 'Идентификатор адреса';
-COMMENT ON COLUMN x#address.c_fio IS 'Адрес';
+COMMENT ON TABLE  x#address           IS 'Адреса';
+COMMENT ON COLUMN x#address.id        IS 'Идентификатор адреса';
+COMMENT ON COLUMN x#address.c_address IS 'Адрес';
 
 ---------------------------------------------------------------
 -- Прописки

@@ -19,11 +19,11 @@ SPOOL data.log
 ---------------------------------------
 -- Заполнение таблиц тестовыми данными
 ---------------------------------------
--- Импорт в схему синхронизации договоров в режиме "онлайн"
 DECLARE
  --
  g_regexp      CONSTANT VARCHAR2(20) := '[^,]+';
  g_delimiter   CONSTANT VARCHAR2(1) := ',';
+ --
  -- заполнение таблицы x#user
  --
  PROCEDURE set_fio
@@ -67,7 +67,6 @@ DECLARE
    dbms_output.put_line('Ошибка при заполнении таблицы x#user: '||SUBSTR (SQLERRM, 1, 2000));
    RAISE;
  END set_fio;
- --
  --
  -- заполнение таблицы x#address
  --
@@ -122,13 +121,12 @@ DECLARE
    FROM
     dual
    CONNECT BY
-    LEVEL < t_flats_count) f
+    LEVEL < t_flats_count) f;
  EXCEPTION
   WHEN OTHERS THEN
    dbms_output.put_line('Ошибка при заполнении таблицы x#address: '||SUBSTR (SQLERRM, 1, 2000));
    RAISE;
  END set_address;
- --
  --
  -- заполнение таблицы x#user_on_adress
  --
@@ -169,7 +167,7 @@ DECLARE
    LEFT OUTER JOIN x#address a1
     ON (a1.id = u1.id)
    LEFT OUTER JOIN x#address a2
-    ON (a2.id = u1.id + u1.max_id) --AND u1.id NOT IN (15, 77)
+    ON (a2.id = u1.id + u1.max_id)
    WHERE
     u1.id NOT IN (50, 75, 99) -- предположим - граждане с id 50, 75 и 99 - бомжи
   ) x1

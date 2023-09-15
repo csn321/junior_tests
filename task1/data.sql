@@ -86,57 +86,49 @@ DECLARE
   -- выбираем все возможные сочетания населенного пункта, улицы и дома
   -- предполагаем, что в каждом доме 30 квартир
   -- предполагаем, что почтовый индекс уникален для каждого дома
-  FOR c IN (
+  INSERT INTO x#address (
+   id
+  ,c_address
+  )
+  SELECT
+   x#address_sq_id.nextval
+  ,'г.' || p.place || ',ул.' || s.street || ',' || h.house || ',' || TRIM(TO_CHAR(f.flat, '99')) || ',' || TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) || TRIM(TO_CHAR(h.postal_code, '09'))
+  FROM (
    SELECT
-    p.place
-   ,s.street
-   ,h.house
-   ,TRIM(TO_CHAR(p.postal_code, '09')) || TRIM(TO_CHAR(s.postal_code, '09')) || TRIM(TO_CHAR(h.postal_code, '09')) postal_code
-   FROM (
-    SELECT
-     SUBSTR(t_place
-           ,DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_place, ',', 1, level), 0, LENGTH(t_place) + 1, INSTR(t_place, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_place, ',', 1, level - 1) + 1)) place
-    ,60 + level postal_code
-    FROM
-     dual
-    CONNECT BY
-     level < 5) p
-   ,(
-    SELECT
-     SUBSTR(t_street
-           ,DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_street, ',', 1, level), 0, LENGTH(t_street) + 1, INSTR(t_street, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_street, ',', 1, level - 1) + 1)) street
-    ,20 + level postal_code
-    FROM
-     dual
-    CONNECT BY
-     level < 5) s
-   ,(
-    SELECT
-     SUBSTR(t_house
-           ,DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)
-           ,DECODE(INSTR(t_house, ',', 1, level), 0, LENGTH(t_house) + 1, INSTR(t_house, ',', 1, level))
-            - DECODE(level, 1, 1, INSTR(t_house, ',', 1, level - 1) + 1)) house
-    ,10 + level postal_code
-    FROM
-     dual
-    CONNECT BY
-     level < 5) h
-  ) LOOP
-     FOR t_flat IN 1..t_flats_count
-     LOOP
-        INSERT INTO x#address (
-         id
-        ,c_address
-        ) VALUES (
-         x#address_sq_id.nextval
-        ,'г.' || c.place || ',ул.' || c.street || ',' || c.house || ',' || TRIM(TO_CHAR(t_flat, '99')) || ',' || c.postal_code
-        );
-     END LOOP;
-  END LOOP;
+    REGEXP_SUBSTR (:t_place,'([^,]+)', 1, LEVEL) place
+   ,60 + LEVEL postal_code
+   FROM
+    dual
+   CONNECT BY
+    LEVEL <= REGEXP_COUNT(:t_place, ',') + 1) p
+  ,(
+   SELECT
+    REGEXP_SUBSTR (:t_street,'([^,]+)', 1, LEVEL) street
+   ,20 + LEVEL postal_code
+   FROM
+    dual
+   CONNECT BY
+    LEVEL <= REGEXP_COUNT(:t_street, ',') + 1) s
+  ,(
+   SELECT
+    REGEXP_SUBSTR (:t_house,'([^,]+)', 1, LEVEL) house
+   ,10 + LEVEL postal_code
+   FROM
+    dual
+   CONNECT BY
+    LEVEL <= REGEXP_COUNT(:t_house, ',') + 1) h
+  ,(
+   SELECT
+    LEVEL flat
+   FROM
+    dual
+   CONNECT BY
+    LEVEL < t_flats_count) f
+ EXCEPTION
+  WHEN OTHERS THEN
+   dbms_output.put_line('Ошибка при заполнении таблицы x#address: '||SUBSTR (SQLERRM, 1, 2000));
+   RAISE;
+
  END set_address;
  --
  --

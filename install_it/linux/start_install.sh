@@ -1,5 +1,14 @@
 #!/bin/bash
 
+echo -n "Выполнить создание объектов базы данных для тестов (Y|N)? [N]: "
+read INSTALL_TEST_
+
+if ! [ "$INSTALL_TEST_" == "Y" ]; then
+   exit 1
+fi
+
+echo "Создаю объекты базы данных для тестов"
+
 #PLATFORM=linux
 
 PLATFORM=`hostnamectl | grep "Operating"`
@@ -38,31 +47,8 @@ if [ "$ORA_CLIENT_" == "N" ]; then
 
 fi
 
-echo -n "Укажите номер теста (1|2|3) и нажмите ввод: "
-read TEST_NUMBER_
+#rm -f query.log
 
-if [ -z "$TEST_NUMBER_" ] || ! [[ $TEST_NUMBER_ =~ ^[1-3]{1}$ ]]; then
-   echo "Ошибка! Указан некорректный номер теста."
-   exit 1
-fi
+#sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
 
-echo "Выполняю тест" $TEST_NUMBER_
-
-echo -n "Введите строку соединения с базой данных в формате username@tnsname и нажмите ввод: "
-read ORAUID_
-
-if [ -z "$ORAUID_" ]; then
-   echo "Ошибка! Указана некорректная строка соединения с базой данных (пустая)."
-   exit 1
-fi
-
-if ! [[ $ORAUID_ =~ ^[^@]+@[^@]+$ ]]; then
-   echo "Ошибка! Указана некорректная строка соединения с базой данных (неправильный формат)."
-   exit 1
-fi
-
-rm -f query.log
-
-sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
-
-mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null
+#mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null

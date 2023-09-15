@@ -42,7 +42,7 @@ FROM
   LEVEL <= REGEXP_COUNT(str, '#') + 1 -- количество символов '#' + 1
 ) x1
 ORDER BY
- x1.key DESC
+ TO_NUMBER(x1.value) DESC
 ;
 
 SPOOL OFF

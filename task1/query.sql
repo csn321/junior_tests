@@ -22,17 +22,41 @@ COLUMN address HEADING "Адрес" FORMAT a50
 COLUMN postal_code HEADING "Почтовый индекс" FORMAT a16
 COLUMN begin_date HEADING "Дата прописки" FORMAT a14
 COLUMN end_date HEADING "Дата выписки" FORMAT a14
-
+COLUMN error_text HEADING "Тескт ошибки" FORMAT a120
 --
 SPOOL query.log
 --
 ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнения запроса [-1, 0, 1]: '
 --
 VARIABLE p_mode NUMBER;
+VARIABLE p_msg_text VARCHAR2(2000);
+VARIABLE p_is_error NUMBER = 0;
 BEGIN
  SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
 END;
 /
+--
+DECLARE
+ t_count       NUMBER;
+ e_fatal_error EXCEPTION;
+ g_msg_text    VARCHAR2(2000) := NULL;
+BEGIN
+ SELECT COUNT(1) INTO t_count FROM user_tables WHERE table_name = 'C#USER';
+ IF (t_count = 0) THEN
+    g_msg_text := 'ORA-20321: таблица c_objects не создана! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
+    :p_msg_text := g_msg_text;
+    :p_is_error := 1;
+    RAISE e_fatal_error;
+ END IF;
+EXCEPTION
+ WHEN e_fatal_error THEN
+  NULL;
+ WHEN OTHERS THEN
+  g_msg_text := SQLERRM;
+END;
+/
+--
+SELECT :p_msg_text error_text FROM DUAL;
 --
 SELECT
  x1.fio
@@ -43,23 +67,23 @@ SELECT
 FROM
 (
  SELECT
-  u.fio
- ,REGEXP_REPLACE (a.address, '(,\d{6})($)', '') address -- оставляем все, кроме индекса
- ,REGEXP_SUBSTR (a.address, '(\d{6})($)') postal_code -- оставляем только индекс
+  REPLACE(u.c_fio, ',', ' ') fio
+ ,REGEXP_REPLACE (a.c_address, '(,\d{6})($)', '') address -- оставляем все, кроме индекса
+ ,REGEXP_SUBSTR (a.c_address, '(\d{6})($)') postal_code -- оставляем только индекс
  ,c.id user_on_address_id
- ,c.begin_date
- ,c.end_date
+ ,c.c_begin begin_date
+ ,c.c_end end_date
  --
  ,CASE
    -- есть запись в таблице прописок с неустановленной датой выписки
-   WHEN (c.id IS NOT NULL AND c.end_date AND NULL) THEN 1 -- действующий адрес
+   WHEN (c.id IS NOT NULL AND c.c_end IS NULL) THEN 1 -- действующий адрес
    -- нет записи в таблице прописок
    WHEN (c.id IS NULL) THEN -1 -- нет действующего адреса
    ELSE 0 -- недействующий адрес
   END is_mode
  --
  -- сортировка: сначала с максимальной датой прописки, с макимальным идентификатором
- ,ROW_NUMBER() OVER (PARTITION BY u.id ORDER BY c.begin_date DESC, c.id DESC) rn
+ ,ROW_NUMBER() OVER (PARTITION BY u.id ORDER BY c.c_begin DESC, c.id DESC) rn
  FROM
   x#user u
  LEFT JOIN x#user_on_address c

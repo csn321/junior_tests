@@ -12,10 +12,13 @@
 -- с программой. В случае её отсутствия, посмотрите http://www.gnu.org/licenses/.
 -- Перевод на русский язык: https://code.google.com/archive/p/gpl3rus/wikis/LatestRelease.wiki
 --
-SET LINESIZE 1000
-SET PAGESIZE 0 EMBEDDED ON
+SET LINESIZE 31
 SET COLSEP ' | '
-SET UNDERLINE OFF
+SET FEED OFF
+SET PAGESIZE 0 EMBEDDED ON
+--
+COLUMN key HEADING "Ключ" FORMAT a20
+COLUMN value HEADING "Значение" FORMAT a8
 --
 SPOOL query.log
 --
@@ -36,7 +39,7 @@ FROM
  FROM
   row_date
  CONNECT BY
-  LEVEL <= REGEXP_COUNT(str, '#')+1 -- количество символов '#' + 1
+  LEVEL <= REGEXP_COUNT(str, '#') + 1 -- количество символов '#' + 1
 ) x1
 ORDER BY
  x1.key DESC

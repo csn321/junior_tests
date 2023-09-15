@@ -18,7 +18,6 @@ SET MARKUP HTML PREFORMAT ON
 SET PAGESIZE 0 EMBEDDED ON
 SET COLSEP ' | '
 SET FEED OFF
-SET DEFINE OFF
 SET SERVEROUTPUT ON
 --
 COLUMN fio HEADING "ФИО" FORMAT a40
@@ -28,14 +27,9 @@ COLUMN begin_date HEADING "Дата прописки" FORMAT a14
 COLUMN end_date HEADING "Дата выписки" FORMAT a14
 COLUMN error_text HEADING "" FORMAT a120
 --
-ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнения запроса [-1, 0, 1]: '
---
 VARIABLE p_mode NUMBER;
 --
-BEGIN
- SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
-END;
-/
+ACCEPT p_mode_accept NUMBER FORMAT 'FM9' DEFAULT '0' PROMPT 'Введите режим выполнения запроса [-1, 0, 1]: '
 --
 SPOOL query.log
 --
@@ -43,6 +37,13 @@ DECLARE
  t_count       NUMBER;
  e_fatal_error EXCEPTION;
 BEGIN
+ SELECT &p_mode_accept INTO :p_mode FROM dual;
+ --
+ IF (:p_mode NOT IN (0, 1, -1)) THEN
+    dbms_output.put_line('ORA-20321: Неверный режим выполнения запроса!');
+    RAISE e_fatal_error;
+ END IF;
+ --
  SELECT
   COUNT(1)
  INTO

@@ -23,7 +23,7 @@ COLUMN address HEADING "Адрес" FORMAT a40
 COLUMN postal_code HEADING "Почтовый индекс" FORMAT a16
 COLUMN begin_date HEADING "Дата прописки" FORMAT a14
 COLUMN end_date HEADING "Дата выписки" FORMAT a14
-COLUMN error_text HEADING "Тескт ошибки" FORMAT a120
+COLUMN error_text HEADING "" FORMAT a120
 --
 ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнения запроса [-1, 0, 1]: '
 --

@@ -20,8 +20,8 @@ SPOOL data.log
 -- Заполнение таблиц тестовыми данными
 ---------------------------------------
 -- Импорт в схему синхронизации договоров в режиме "онлайн"
-CREATE OR REPLACE PROCEDURE set_data ()
-AS $body$
+--CREATE OR REPLACE PROCEDURE set_data ()
+--AS $body$
 DECLARE
  --
  -- заполнение таблицы x#user

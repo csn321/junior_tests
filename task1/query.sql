@@ -30,7 +30,6 @@ ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнен
 --
 VARIABLE p_mode NUMBER;
 VARIABLE p_msg_text VARCHAR2(2000);
-VARIABLE p_is_error NUMBER = 0;
 BEGIN
  SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
 END;
@@ -45,7 +44,6 @@ BEGIN
  IF (t_count = 0) THEN
     g_msg_text := 'ORA-20321: таблица c_objects не создана! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
     :p_msg_text := g_msg_text;
-    :p_is_error := 1;
     RAISE e_fatal_error;
  END IF;
 EXCEPTION

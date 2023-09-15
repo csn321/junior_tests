@@ -47,8 +47,25 @@ if [ "$ORA_CLIENT_" == "N" ]; then
 
 fi
 
-#rm -f query.log
+echo -n "Введите строку соединения с базой данных в формате username@tnsname и нажмите ввод: "
+read ORAUID_
 
-#sqlplus $ORAUID_ @'../../task'$TEST_NUMBER_'/query.sql'
+if [ -z "$ORAUID_" ]; then
+   echo "Ошибка! Указана некорректная строка соединения с базой данных (пустая)."
+   exit 1
+fi
 
-#mv query.log "query${TEST_NUMBER_}_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null
+if ! [[ $ORAUID_ =~ ^[^@]+@[^@]+$ ]]; then
+   echo "Ошибка! Указана некорректная строка соединения с базой данных (неправильный формат)."
+   exit 1
+fi
+
+rm -f install.log
+
+sqlplus $ORAUID_ @'../../task1/install.sql'
+
+touch install.txt
+
+cat install.log tables.log sequences.log indexes.log data.log > install.txt
+
+mv install.txt "install_`date '+%Y%m%d'`_${PLATFORM}.log" 2>/dev/null

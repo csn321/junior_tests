@@ -18,8 +18,8 @@ SET PAGESIZE 0 EMBEDDED ON
 SET COLSEP ' | '
 SET FEED OFF
 --
-COLUMN fio HEADING "ФИО" FORMAT a50
-COLUMN address HEADING "Адрес" FORMAT a50
+COLUMN fio HEADING "ФИО" FORMAT a40
+COLUMN address HEADING "Адрес" FORMAT a40
 COLUMN postal_code HEADING "Почтовый индекс" FORMAT a16
 COLUMN begin_date HEADING "Дата прописки" FORMAT a14
 COLUMN end_date HEADING "Дата выписки" FORMAT a14
@@ -29,7 +29,6 @@ ACCEPT p_mode_str DEFAULT '0' PROMPT 'Введите режим выполнен
 --
 VARIABLE p_mode NUMBER;
 VARIABLE p_msg_text VARCHAR2(2000);
-VARIABLE p_is_error NUMBER;
 BEGIN
  SELECT DECODE('&&p_mode_str', '0', 0, '1', 1, '-1', -1, 0) INTO :p_mode FROM dual;
  SELECT 0 INTO :p_is_error FROM dual;
@@ -41,11 +40,10 @@ DECLARE
  e_fatal_error EXCEPTION;
  g_msg_text    VARCHAR2(2000) := NULL;
 BEGIN
- SELECT COUNT(1) INTO t_count FROM user_tables WHERE table_name = 'C#USER';
- IF (t_count = 0) THEN
-    g_msg_text := 'ORA-20321: таблица c_objects не создана! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
+ SELECT COUNT(1) INTO t_count FROM user_tables WHERE table_name IN ('X#USER', 'X#ADDRESS', 'X#USER_ON_ADDRESS');
+ IF (t_count < 3) THEN
+    g_msg_text := 'ORA-20321: одна или несколько таблиц не созданы! Запустите скрипт /gitlab321/cft/junior_tests/task1/install.sql';
     :p_msg_text := g_msg_text;
-    :p_is_error := 1;
     RAISE e_fatal_error;
  END IF;
 EXCEPTION

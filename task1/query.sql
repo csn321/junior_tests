@@ -76,13 +76,13 @@ FROM (
    WHEN (x1.end_date IS NULL) THEN
     REGEXP_REPLACE (x1.address, '(,\d{6})($)', '') -- оставляем все, кроме индекса
    ELSE
-    ''
+    NULL
    END address
  ,CASE
    WHEN (x1.end_date IS NULL) THEN
     REGEXP_SUBSTR (x1.address, '(\d{6})($)') -- оставляем только индекс
    ELSE
-    ''
+    NULL
    END postal_code
  ,x1.begin_date
  ,x1.end_date
